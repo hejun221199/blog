@@ -15,7 +15,7 @@ title: 我的 Blog
 {% for post in site.posts %}
 {{ site.baseurl }}<br/>
 {{ post.url }}<br/>
-<li>{{ post.date date_to_string }} <a href="blog{{ post.url }}">
+<li>{{ post.date date_to_string }} <a href="/blog{{ post.url }}">
 {{ post.title }}</a></li>
 
 {% endfor %}
