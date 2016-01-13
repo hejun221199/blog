@@ -1,5 +1,6 @@
 function $(selector) {
 	return document.querySelector(selector);
+	var name = 'hejun';
 }
 
 window.saw = (function($){
