@@ -9,8 +9,6 @@ window.saw = (function($){
 		TRANSITION_END = 'transitionend',
 		TRANSFORM_CSS  = 'transform',
 		TRANSITION_CSS = 'transition';
-
-	var animateEnd = false;
 		
 	if(typeof document.body.style.webkitTransform !== undefined) {
 		TRANSITION = 'webkitTransition';
@@ -23,8 +21,8 @@ window.saw = (function($){
 	var wrapperTemplate = function(){
 		var div = document.createElement('div');
 		div.innerHTML = '<div class="controls">'+
-		'<p><a class="prev" href="#">Prev</a></p>'+
-		'<p><a class="next" href="#">Next</a></p>'+
+		'<a class="prev" href="#">prev</a> | '+
+		'<a class="next" href="#">next</a></div>'+
 		'</div>';
 		div.className = "slidewrap";
 		return div;
@@ -34,13 +32,14 @@ window.saw = (function($){
 		var div = document.createElement('div');
 		div.className = 'slide';
 		div.innerHTML = '<div style="background-image:url('+slide.url+')"></div>';
+		
 		return div;
 	}
 	
 	function Lightbox (selector) {
 		
 		var containerNode = $(selector), 
-			wrapper,
+			wrapper, 
 			chromeBuilt, 
 			
 			currentSlide = 0,
@@ -60,18 +59,15 @@ window.saw = (function($){
 
 		function handleClicks(e){
 			var targ = e.target;
-
-			if(animateEnd) return;
+			
 			//prevent default is only called when conditions match
 			//so that clicks to external resoures (like Flickr) work.
 			if(targ.className == 'next') {
 				e.preventDefault();
 				goTo(currentSlide + 1);
-				animateEnd = true;
 			} else if(targ.className == 'prev'){
 				e.preventDefault();
 				goTo(currentSlide - 1);
-				animateEnd = true;
 			} else if (targ.className != 'flickr-link') {
 				e.preventDefault();
 				hide();
@@ -97,7 +93,7 @@ window.saw = (function($){
 				slideMap[thisSlide.link] = slideData.push(thisSlide) - 1;
 				thisSlide.id = slideMap[thisSlide.link];
 			}
-			
+			console.log(slideMap)
 		}
 		
 		function buildSlide (slideNum) {
@@ -123,20 +119,19 @@ window.saw = (function($){
 				}
 				
 				w = Math.round(thisSlide.width * scaleFactor);
-				console.log('w:'+w,'scaleFactor:' + scaleFactor)
-				if(w > boundingBox[0]) w = boundingBox[0];
-				//h = Math.round(thisSlide.height * scaleFactor);
-				//img.style.height = h + 'px';
+				if(w > boundingBox[0]) w = boundingBox[0]
+				h = Math.round(thisSlide.height * scaleFactor);
+				img.style.height = h + 'px';
 				img.style.width = w + 'px';
 				
 			}else{
-				//img.style.height = thisSlide.height + 'px';
+				img.style.height = thisSlide.height + 'px';
 				img.style.width = thisSlide.width + 'px';
 			}
 
 			thisSlide.node = s;
 			wrapper.appendChild(s);
-			setPosition(s, boundingBox[0]); //默认设置到屏幕的右外侧
+			setPosition(s, boundingBox[0]);
 			return s;
 		}
 		
@@ -165,10 +160,10 @@ window.saw = (function($){
 				
 			}else if(e.type == 'touchmove'){
 				e.preventDefault();
-				if(lastPos > startPos){  //   --->
+				if(lastPos > startPos){
 					direction = -1;
 				}else{
-					direction = 1;   // <---
+					direction = 1;
 				}
 				if(slideData[currentSlide]){
 					setPosition(slideData[currentSlide].node, e.touches[0].clientX - startPos);
@@ -227,12 +222,11 @@ window.saw = (function($){
 		}
 		
 		function addTransitions(node){
-			node.style[TRANSITION] = TRANSFORM_CSS + ' 0.5s ease-in-out';
+			node.style[TRANSITION] = TRANSFORM_CSS + ' .25s ease-in-out';
 			
 			node.addEventListener(TRANSITION_END, function(e){
 				window.setTimeout(function(){
 					e.target.style[TRANSITION] = 'none;'
-					animateEnd = false;
 				}, 0)
 			})
 		}
@@ -242,14 +236,14 @@ window.saw = (function($){
 		}
 		
 		function goTo(slideNum){
-			
+		
 			var thisSlide;
 			
 			//failure, return to last slide
 			if(!slideData[slideNum]){
 				goTo(currentSlide);
 			}
-			//纠正currentSlide
+			
 			if(Math.abs(currentSlide - slideNum) !== 1 && 
 			slideData[currentSlide] && slideData[currentSlide].node){
 				//current slide not adjacent to new slide!
@@ -272,12 +266,12 @@ window.saw = (function($){
 			
 			if(slideData[slideNum - 1] && slideData[slideNum-1].node){
 				addTransitions(slideData[slideNum - 1 ].node);
-				setPosition( slideData[slideNum - 1 ].node , (0 - boundingBox[0]) ); //屏幕左外侧
+				setPosition( slideData[slideNum - 1 ].node , (0 - boundingBox[0]) );
 			}
 			
 			if(slideData[slideNum + 1] && slideData[slideNum + 1].node){
 				addTransitions(slideData[slideNum + 1 ].node);
-				setPosition(slideData[slideNum + 1 ].node, boundingBox[0] );	//屏幕右外侧
+				setPosition(slideData[slideNum + 1 ].node, boundingBox[0] );
 			}
 			
 			currentSlide = slideNum;
