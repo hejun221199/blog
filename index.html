@@ -13,7 +13,8 @@ title: 我的 Blog
 <ul>
 
 {% for post in site.posts %}
-
+{{ site.baseurl }}<br/>
+{{ post.url }}
 <li>{{ post.date date_to_string }} <a href="{{ site.baseurl }}{{ post.url }}">
 {{ post.title }}</a></li>
 
